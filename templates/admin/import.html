@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="wrap narrow">
+  <h1>Importar piezas</h1>
+  <ol class="steps">
+    <li>Descarga la planilla.</li>
+    <li>Escribe una fila por pieza. En <strong>imagenes</strong> pon los nombres de archivo separados por coma. <strong>video</strong> es opcional.</li>
+    <li>Sube la planilla junto con esas fotos y el video.</li>
+  </ol>
+  <a class="button" href="{{ url_for('admin.import_template') }}">Descargar planilla</a>
+  {% if report %}
+  <h2>Resultado</h2>
+  {% if report.file_error %}
+  <p class="form-errors">{{ report.file_error }}</p>
+  {% endif %}
+  <p>{{ report.created }} creadas · {{ report.skipped }} omitidas · {{ report.errors }} con error</p>
+  {% if report.rows %}
+  <table class="report">
+    <thead>
+      <tr><th>Fila</th><th>Nombre</th><th>Resultado</th><th>Detalle</th></tr>
+    </thead>
+    <tbody>
+      {% for row in report.rows %}
+      <tr data-result="{{ row.result }}">
+        <td>{{ row.row }}</td>
+        <td>{{ row.name }}</td>
+        <td>{{ {"created": "Creado", "skipped": "Omitido", "error": "Error"}[row.result] }}</td>
+        <td>{{ row.detail }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+  <p class="hint">Si el navegador pregunta si quieres reenviar el formulario, cancela. Si no, las piezas creadas se duplican.</p>
+  {% endif %}
+  <form method="post" action="{{ url_for('admin.import_submit') }}" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="planilla">Planilla .xlsx</label>
+    <input id="planilla" name="planilla" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required>
+    <label for="archivos">Fotos y videos</label>
+    <input id="archivos" name="archivos" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" multiple>
+    <button class="button" type="submit">Importar</button>
+  </form>
+</section>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="wrap narrow">
+  <h1>Pago</h1>
+  <p class="lede">El envío se coordina después, por separado. Este pago es solo por las piezas. Webpay cobra la tarjeta: nosotros no la guardamos.</p>
+  <ul class="summary">
+    {% for line in lines %}
+    <li>
+      <span>{{ line.name }} × {{ line.quantity }}</span>
+      <span>{{ format_clp(line.line_total) }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  <p class="total">Total a pagar {{ format_clp(total) }}</p>
+  {% if errors %}
+  <ul class="form-errors">
+    {% for error in errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  <form method="post" action="{{ url_for('storefront.checkout') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="nombre">Nombre</label>
+    <input id="nombre" name="nombre" autocomplete="name" required maxlength="80" value="{{ draft.nombre }}">
+    <label for="email">Correo</label>
+    <input id="email" name="email" type="email" autocomplete="email" required maxlength="100" value="{{ draft.email }}">
+    <label for="telefono">Teléfono</label>
+    <input id="telefono" name="telefono" type="tel" autocomplete="tel" required maxlength="20" value="{{ draft.telefono }}">
+    <label for="direccion">Dirección</label>
+    <input id="direccion" name="direccion" autocomplete="street-address" required maxlength="200" value="{{ draft.direccion }}">
+    <label for="ciudad">Ciudad</label>
+    <input id="ciudad" name="ciudad" autocomplete="address-level2" required maxlength="80" value="{{ draft.ciudad }}">
+    <label for="notas">Notas</label>
+    <textarea id="notas" name="notas" maxlength="500" placeholder="Tamaño, color o un horario para coordinar la entrega.">{{ draft.notas }}</textarea>
+    <button class="button" type="submit">Pagar con Webpay</button>
+  </form>
+</section>
+{% endblock %}

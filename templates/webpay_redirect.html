@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block robots %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+<section class="wrap narrow">
+  <h1>Te llevamos a Webpay</h1>
+  <p>Total a pagar {{ format_clp(total) }}. Referencia {{ buy_order }}.</p>
+  <form id="webpay" method="post" action="{{ webpay_url }}">
+    <input type="hidden" name="token_ws" value="{{ webpay_token }}">
+    <button class="button" type="submit">Continuar a Webpay</button>
+  </form>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>document.getElementById("webpay").submit();</script>
+{% endblock %}

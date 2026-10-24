@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero wrap">
+  <p class="eyebrow">Hecho a mano en Chile</p>
+  <h1>{{ store_name }}</h1>
+  <p class="lede">Carteras, telares y pulseras de talleres chicos. Cada pieza se cose, se teje o se arma de una en una.</p>
+</section>
+<nav class="wrap chips" aria-label="Categorías">
+  <a class="chip{% if not current_category %} is-active{% endif %}" href="{{ url_for('storefront.home') }}">Todas</a>
+  {% for category in categories %}
+  <a class="chip{% if current_category == category %} is-active{% endif %}" href="{{ url_for('storefront.home', categoria=category) }}">{{ category }}</a>
+  {% endfor %}
+</nav>
+<section class="wrap catalog">
+  {% if products %}
+  <div class="product-grid">
+    {% for product in products %}
+    <a class="card" href="{{ url_for('storefront.product', product_id=product.id) }}">
+      {% if product.cover %}
+      <img src="{{ url_for('storefront.media_file', filename=product.cover) }}" alt="{{ product.name }}" width="800" height="1000" loading="lazy" decoding="async">
+      {% else %}
+      <div class="photo-fallback" role="img" aria-label="{{ product.name }}"></div>
+      {% endif %}
+      <div class="card-body">
+        <p class="card-category">{{ product.category }}</p>
+        <h2>{{ product.name }}</h2>
+        <p class="price">{{ format_clp(product.price_clp) }}</p>
+        {% if product.stock < 1 %}
+        <p class="stock-note">Agotado</p>
+        {% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="empty">Todavía no hay piezas en esta categoría.</p>
+  {% endif %}
+</section>
+{% endblock %}

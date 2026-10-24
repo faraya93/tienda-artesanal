@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="wrap">
+  <h1>Piezas</h1>
+  <div class="button-row admin-actions">
+    <a class="button" href="{{ url_for('admin.new_product') }}">Nueva pieza</a>
+    <a class="button secondary" href="{{ url_for('admin.orders') }}">Pedidos{% if pending %} ({{ pending }} pendientes){% endif %}</a>
+    <a class="button secondary" href="{{ url_for('admin.import_form') }}">Importar Excel</a>
+  </div>
+  {% if products %}
+  <ul class="admin-list">
+    {% for product in products %}
+    <li class="admin-card">
+      {% if product.cover %}
+      <img src="{{ url_for('storefront.media_file', filename=product.cover) }}" alt="" width="120" height="150" loading="lazy">
+      {% else %}
+      <div class="photo-fallback"></div>
+      {% endif %}
+      <div>
+        <p class="card-category">{{ product.category }}{% if not product.active %} · oculta{% endif %}</p>
+        <h2>{{ product.name }}</h2>
+        <p>{{ format_clp(product.price_clp) }} · stock {{ product.stock }}</p>
+        <a class="button" href="{{ url_for('admin.edit_product', product_id=product.id) }}">Editar</a>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">Todavía no hay piezas.</p>
+  {% endif %}
+</section>
+{% endblock %}

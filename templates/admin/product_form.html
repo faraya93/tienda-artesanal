@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="wrap narrow">
+  <h1>{{ "Nueva pieza" if product is none else "Editar pieza" }}</h1>
+  {% if errors %}
+  <ul class="form-errors">
+    {% for error in errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  <form method="post" enctype="multipart/form-data" data-product-form>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="media_order" value="">
+    <input type="hidden" name="media_order_set" value="">
+    <label for="nombre">Nombre</label>
+    <input id="nombre" name="nombre" required maxlength="80" value="{{ draft.nombre }}">
+    <label for="descripcion">Descripción</label>
+    <textarea id="descripcion" name="descripcion" required maxlength="2000">{{ draft.descripcion }}</textarea>
+    <label for="precio">Precio en pesos, sin puntos</label>
+    <input id="precio" name="precio" inputmode="numeric" required value="{{ draft.precio }}">
+    <label for="categoria">Categoría</label>
+    <select id="categoria" name="categoria">
+      {% for category in categories %}
+      <option value="{{ category }}"{% if draft.categoria == category %} selected{% endif %}>{{ category }}</option>
+      {% endfor %}
+    </select>
+    <label for="stock">Stock</label>
+    <input id="stock" name="stock" inputmode="numeric" required value="{{ draft.stock }}">
+    <label class="check">
+      <input type="checkbox" name="activo" value="1"{% if draft.activo %} checked{% endif %}>
+      Visible en la tienda
+    </label>
+    <fieldset>
+      <legend>Fotos y video</legend>
+      <p>Hasta 6 fotos y 1 video. La primera foto es la portada. Arrástrala al inicio para cambiarla. El video queda al final.</p>
+      <ul class="media-list" data-media-list>
+        {% for item in media %}
+        <li draggable="true" data-existing-id="{{ item.id }}" data-type="{{ item.media_type }}">
+          <input type="hidden" name="keep_id" value="{{ item.id }}">
+          {% if item.media_type == 'image' %}
+          <img src="{{ url_for('storefront.media_file', filename=item.filename) }}" alt="" width="160" height="200">
+          {% else %}
+          <video muted playsinline preload="metadata" src="{{ url_for('storefront.media_file', filename=item.filename) }}"></video>
+          {% endif %}
+          <button type="button" data-remove>Quitar</button>
+        </li>
+        {% endfor %}
+      </ul>
+      <p data-media-message class="hint"></p>
+      <div class="dropzone" data-dropzone hidden>
+        <p>Arrastra las fotos o el video aquí</p>
+        <button type="button" data-pick>Elegir archivos</button>
+      </div>
+      <label class="file-fallback">
+        Elegir fotos o video
+        <input type="file" name="new_media" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" multiple>
+      </label>
+    </fieldset>
+    <button class="button" type="submit">Guardar</button>
+  </form>
+  {% if product %}
+  <form class="danger-form" method="post" action="{{ url_for('admin.remove_product', product_id=product.id) }}" onsubmit="return confirm('¿Eliminar esta pieza?');">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button class="button secondary" type="submit">Eliminar</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='admin.js') }}"></script>
+{% endblock %}

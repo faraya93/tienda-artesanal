@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="wrap narrow">
+  <h1>{{ heading }}</h1>
+  <p>{{ message }}</p>
+  <a class="button" href="{{ url_for('storefront.home') }}">Volver a la tienda</a>
+</section>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="wrap product">
+  <div class="gallery" data-gallery>
+    <div class="gallery-stage">
+      {% for item in media %}
+      <div class="gallery-slide{% if loop.first %} is-active{% endif %}" data-position="{{ item.position }}" data-type="{{ item.media_type }}" data-filename="{{ item.filename }}"{% if item.media_type == 'image' and item.position == 0 %} data-cover="true"{% endif %}>
+        {% if item.media_type == 'image' %}
+        <img src="{{ url_for('storefront.media_file', filename=item.filename) }}" alt="{{ product.name }}" width="800" height="1000"{% if not loop.first %} loading="lazy"{% endif %} decoding="async">
+        {% else %}
+        <video muted loop playsinline controls preload="metadata">
+          <source src="{{ url_for('storefront.media_file', filename=item.filename) }}" type="{{ 'video/webm' if item.filename.endswith('.webm') else 'video/mp4' }}">
+        </video>
+        {% endif %}
+      </div>
+      {% endfor %}
+      {% if media|length > 1 %}
+      <button type="button" class="gallery-nav gallery-prev" data-prev aria-label="Anterior">‹</button>
+      <button type="button" class="gallery-nav gallery-next" data-next aria-label="Siguiente">›</button>
+      {% endif %}
+    </div>
+    {% if media|length > 1 %}
+    <div class="thumbs">
+      {% for item in media %}
+      <button type="button" class="thumb{% if loop.first %} is-active{% endif %}" data-index="{{ loop.index0 }}" aria-label="{{ 'Video' if item.media_type == 'video' else 'Foto ' ~ loop.index }}">
+        {% if item.media_type == 'image' %}
+        <img src="{{ url_for('storefront.media_file', filename=item.filename) }}" alt="" width="72" height="90" loading="lazy" decoding="async">
+        {% else %}
+        <span class="thumb-video">Video</span>
+        {% endif %}
+      </button>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  <div class="product-copy">
+    <p class="eyebrow">{{ product.category }} · Hecho a mano en Chile</p>
+    <h1>{{ product.name }}</h1>
+    <p class="price price-lg">{{ format_clp(product.price_clp) }}</p>
+    <div class="prose">{{ product.description }}</div>
+    {% if product.stock < 1 %}
+    <p class="stock-note">Agotado</p>
+    {% elif product.stock == 1 %}
+    <p class="stock-note">Queda 1</p>
+    {% else %}
+    <p class="stock-note">Quedan {{ product.stock }}</p>
+    {% endif %}
+    {% if product.stock > 0 %}
+    <form class="buy-form" method="post" action="{{ url_for('storefront.cart_add') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <input type="hidden" name="product_id" value="{{ product.id }}">
+      <label for="quantity">Cantidad</label>
+      <input id="quantity" name="quantity" type="number" min="1" max="{{ product.stock }}" value="1" inputmode="numeric" required>
+      <button class="button" type="submit">Agregar al carro</button>
+    </form>
+    {% endif %}
+  </div>
+</article>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='gallery.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="wrap narrow">
+  <h1>Tu carro</h1>
+  {% if lines %}
+  <form method="post" action="{{ url_for('storefront.cart_update') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <ul class="cart-list">
+      {% for line in lines %}
+      <li class="cart-line">
+        {% if line.cover_filename %}
+        <img src="{{ url_for('storefront.media_file', filename=line.cover_filename) }}" alt="" width="96" height="120" loading="lazy">
+        {% endif %}
+        <div>
+          <h2><a href="{{ url_for('storefront.product', product_id=line.id) }}">{{ line.name }}</a></h2>
+          <p>{{ format_clp(line.price_clp) }}</p>
+          <label for="qty_{{ line.id }}">Cantidad</label>
+          <input id="qty_{{ line.id }}" name="qty_{{ line.id }}" type="number" min="1" max="{{ line.stock }}" value="{{ line.quantity }}" inputmode="numeric">
+          <p class="line-total">{{ format_clp(line.line_total) }}</p>
+          <button class="text-button" type="submit" name="quitar" value="{{ line.id }}">Quitar</button>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    <p class="total">Total {{ format_clp(total) }}</p>
+    <div class="button-row">
+      <button class="button secondary" type="submit">Actualizar</button>
+      <a class="button" href="{{ url_for('storefront.checkout') }}">Ir a pagar</a>
+    </div>
+  </form>
+  {% else %}
+  <p class="empty">Tu carro está vacío.</p>
+  <a class="button" href="{{ url_for('storefront.home') }}">Ver las piezas</a>
+  {% endif %}
+</section>
+{% endblock %}

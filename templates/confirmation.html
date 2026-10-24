@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="wrap narrow">
+  <p class="eyebrow">Pedido Nº {{ order.id }}</p>
+  <h1>{{ status_label }}</h1>
+  <p class="status status-{{ order.status }}">{{ status_label }}</p>
+  <p>Referencia Webpay: {{ order.buy_order }}</p>
+  <ul class="summary">
+    {% for item in items %}
+    <li>
+      <span>{{ item.name }} × {{ item.quantity }}</span>
+      <span>{{ format_clp(item.line_total) }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  <p class="total">Total {{ format_clp(order.total_clp) }}</p>
+  {% if order.status == 'paid' %}
+  <p>Recibimos el pago. Te escribiremos a {{ order.email }} para coordinar la entrega en {{ order.city }}.</p>
+  {% elif order.status == 'pending' %}
+  <p>El pago todavía no se confirma. Si Webpay ya cobró, espera un momento y vuelve a abrir esta página.</p>
+  {% else %}
+  <p>El pago no se completó y no descontamos stock. Puedes volver al carro e intentarlo de nuevo.</p>
+  {% endif %}
+  <a class="button" href="{{ url_for('storefront.home') }}">Volver a la tienda</a>
+</section>
+{% endblock %}

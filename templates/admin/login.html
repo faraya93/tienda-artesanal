@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="wrap narrow">
+  <h1>Entrar</h1>
+  <p>Esta página es solo para quien administra la tienda.</p>
+  {% if error %}
+  <p class="form-errors">{{ error }}</p>
+  {% endif %}
+  <form method="post" action="{{ url_for('admin.login') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label for="password">Clave</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    <button class="button" type="submit">Entrar</button>
+  </form>
+</section>
+{% endblock %}

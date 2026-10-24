@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ og.title }}</title>
+  <meta name="description" content="{{ og.description }}">
+  <meta name="theme-color" content="#FAF6F0">
+  <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+  <meta property="og:site_name" content="{{ store_name }}">
+  <meta property="og:locale" content="es_CL">
+  <meta property="og:title" content="{{ og.title }}">
+  <meta property="og:description" content="{{ og.description }}">
+  <meta property="og:type" content="{{ og.type }}">
+  <meta property="og:url" content="{{ og.url }}">
+  {% if og.image or default_og_image %}
+  <meta property="og:image" content="{{ og.image or default_og_image }}">
+  {% endif %}
+  {% block robots %}
+  {% if request.blueprint == 'admin' %}
+  <meta name="robots" content="noindex, nofollow">
+  {% endif %}
+  {% endblock %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  {% if meta_pixel_id %}
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '{{ meta_pixel_id }}');
+    fbq('track', 'PageView');
+  </script>
+  {% endif %}
+</head>
+<body>
+  <a class="skip" href="#contenido">Saltar al contenido</a>
+  <header class="site-header">
+    <div class="wrap header-bar">
+      <a class="brand" href="{{ url_for('storefront.home') }}">{{ store_name }}</a>
+      <nav class="header-nav">
+        {% if request.blueprint == 'admin' and session.get('is_admin') %}
+        <a href="{{ url_for('admin.dashboard') }}">Piezas</a>
+        <a href="{{ url_for('admin.orders') }}">Pedidos</a>
+        <a href="{{ url_for('admin.import_form') }}">Importar</a>
+        <form method="post" action="{{ url_for('admin.logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button type="submit" class="text-button">Salir</button>
+        </form>
+        {% else %}
+        <a class="cart-link" href="{{ url_for('storefront.cart') }}">Carro{% if cart_count %} <span>{{ cart_count }}</span>{% endif %}</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="wrap">
+      <ul class="flashes">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  {% endwith %}
+  <main id="contenido">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>{{ store_name }}</p>
+      <p>Hecho a mano en Chile</p>
+    </div>
+  </footer>
+  {% if meta_pixel_id %}
+  <noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id={{ meta_pixel_id }}&amp;ev=PageView&amp;noscript=1"></noscript>
+  {% endif %}
+  {% block scripts %}{% endblock %}
+</body>
+</html>
